@@ -77,15 +77,12 @@ for iter = 1:100
         
         %beta_t = 6 * log(2 * (t * pi).^2 / (6 * delta));
         beta_t2(t) = beta_t;
-        beta_t_rule2(t) = beta_t_rule;
-        all_std_rule(t) = bound(2);
         
         %run decision module here
         
         rule_truth = x_rule(pick_x_rule)==rule;
         [reward,c] = decision_module_time_and_rule(stim,x(pick_x),rule_truth);
-        sample_y = [sample_y,reward];
-        sample_y_rule = sample_y;
+        sample_y = [sample_y,reward]; sample_y_rule = sample_y;
         
         if sess_type == 3 %time only switch
             rule_truth = NaN;
@@ -96,26 +93,19 @@ for iter = 1:100
         end
         
         pc(t+1) = c;
-
-%        alpha2 = 0.8;
-         pe(t+1) = reward - Q(t);
-         Q(t+1) = Q(t) + 0.3*pe(t+1); 
-         
-         if pe(t)<0
-             beta_t = beta_t + w*abs(pe(t+1));
-             beta_t_rule = beta_t_rule + w_rule*abs(pe(t+1));
-         end
-%              
-         all_rule(t) = rule_truth;
         
+        pe(t+1) = reward - Q(t);
+        Q(t+1) = Q(t) + 0.3*pe(t+1);
+        
+        if pe(t)<0
+            beta_t = beta_t + w*abs(pe(t+1));
+            beta_t_rule = beta_t_rule + w_rule*abs(pe(t+1));
+        end
+        %        
         
     end
     
-    all_sample_x(iter,:) = sample_x;
-
     learning_curve(iter,:) = gaussFilterSpikes(pc,1);
-    all_pe(iter,:) = pe;
-    all_beta_t2(iter,:) = beta_t2;
     average_rewards(iter) = nanmean(sample_y);
 
     
